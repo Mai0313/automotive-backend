@@ -1,0 +1,39 @@
+services:
+  vllm-server:
+    # original command:
+    # sudo docker run -it --rm -p 8889:8000 --gpus all -v ${HOME}/.cache:/root/.cache -v ${HOME}/projects/vllm:/root -e HF_TOKEN=${HF_TOKEN} nvcr.io/nvidia/tritonserver:25.03-vllm-python-py3 python3 -m vllm.entrypoints.openai.api_server --model meta-llama/Llama-3.1-8B-Instruct --max-model-len 16000 --gpu-memory-utilization 0.60 --enable-auto-tool-choice --tool-call-parser llama3_json --chat-template /root/tool_chat_template_llama3.1_json_aug.jinja
+    image: nvcr.io/nvidia/tritonserver:25.03-vllm-python-py3
+    command: >
+      python3 -m vllm.entrypoints.openai.api_server
+      --model meta-llama/Llama-3.1-8B-Instruct
+      --max-model-len 16000
+      --gpu-memory-utilization 0.60
+      --enable-auto-tool-choice
+      --tool-call-parser llama3_json
+      --chat-template /root/tool_chat_template_llama3.1_json.jinja
+    ports:
+      - 8889:8000
+    environment:
+      - HF_TOKEN=${HF_TOKEN}
+    volumes:
+      - ${HOME}/.cache:/root/.cache
+      - ${HOME}/projects/vllm:/root
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - capabilities: [gpu]
+    stdin_open: true
+    tty: true
+
+  pipecat-server:
+    depends_on:
+      - vllm-server
+    image: ghcr.io/yaominlouis/ace-controller:latest
+    build: .
+    network_mode: host
+    environment:
+      - FLASK_APP=server.py
+    volumes:
+      - .:/app
+    restart: always

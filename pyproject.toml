@@ -1,0 +1,19 @@
+[project]
+name = "automotive-backend"
+version = "0.1.0"
+description = "Automotive Backend for AI-powered vehicle systems"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi==0.115.12",
+    "grpcio==1.67.1",
+    "numpy==1.26.4",
+    "nvidia-pipecat==0.1.1",
+    "openai==1.84.0",
+    "pipecat-ai==0.0.57",
+    "psycopg2-binary==2.9.10",
+    "python-dotenv==1.1.0",
+    "sounddevice==0.5.2",
+    "uvicorn==0.34.3",
+    "websockets==13.1",
+]
