@@ -18,16 +18,16 @@ from pipecat.pipeline.task import PipelineParams, PipelineTask
 from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
 from pipecat.services.nim import NimLLMService
 from pipecat.services.openai import OpenAILLMContext
-from utils.llm.prompt import SYSTEM_PROMPT_TEMPLATE
+from src.llm.prompt import SYSTEM_PROMPT_TEMPLATE
 
 
-# from utils.llm.tools.time import get_current_time
-# from utils.llm.tools.weather import get_current_weather
-from utils.llm.tools.front_windshield import front_defrost_on_tool, get_front_defrost_status
-from utils.llm.tools.fan import set_fan_speed_tool, get_fan_speed
-from utils.llm.tools.temperature import set_temp_tool, get_temp
-from utils.llm.tools.google_map import google_map_tool
-from utils.llm.tools.handler import handle_function
+# from src.llm.tools.time import get_current_time
+# from src.llm.tools.weather import get_current_weather
+from src.llm.tools.front_windshield import front_defrost_on_tool, get_front_defrost_status
+from src.llm.tools.fan import set_fan_speed_tool, get_fan_speed
+from src.llm.tools.temperature import set_temp_tool, get_temp
+from src.llm.tools.google_map import google_map_tool
+from src.llm.tools.handler import handle_function
 from routers import tts
 
 from nvidia_pipecat.pipeline.ace_pipeline_runner import ACEPipelineRunner, PipelineMetadata
