@@ -379,6 +379,8 @@ ignore = [
     "PERF401",
     # Use `list` or `list.copy` to create a copy of a list
     "PERF402",
+    # Allow using `print`
+    "T201",
     ]
 
 [tool.ruff.lint.pycodestyle]

@@ -1,24 +1,22 @@
 #!/usr/bin/env python3
-"""
-Client to send WAV file to NVIDIA Pipecat server for transcription.
+"""Client to send WAV file to NVIDIA Pipecat server for transcription.
 Uses protobuf format compatible with ACE Transport.
 """
 
-import asyncio
-import websockets
-import wave
-import struct
-import json
 import sys
-import argparse
-from pathlib import Path
 import uuid
-import sounddevice as sd
+import wave
+import asyncio
+from pathlib import Path
+import argparse
+
 import numpy as np
-from pipecat.frames.frames import OutputAudioRawFrame, StartFrame, SystemFrame, EndFrame
-from pipecat.serializers.protobuf import ProtobufFrameSerializer
-from pipecat.clocks.system_clock import SystemClock
+import websockets
+import sounddevice as sd
+from pipecat.frames.frames import SystemFrame, OutputAudioRawFrame
 from pipecat.utils.asyncio import TaskManager
+from pipecat.clocks.system_clock import SystemClock
+from pipecat.serializers.protobuf import ProtobufFrameSerializer
 
 
 class WAVClient:
@@ -31,10 +29,10 @@ class WAVClient:
         self.task_manager = TaskManager()
         self.SAMPLE_RATE = 16000
         self.NUM_CHANNELS = 1
-        self.audio_queue = asyncio.Queue()
+        self.audio_queue: asyncio.Queue = asyncio.Queue()
         self.is_playing = False
 
-    async def connect(self):
+    async def connect(self) -> None:
         """Connect to the WebSocket server with proper ACE headers"""
         try:
             # Headers that ACE transport might expect
@@ -98,7 +96,7 @@ class WAVClient:
                 print(f"Connection failed: {e2}")
                 raise
 
-    async def disconnect(self):
+    async def disconnect(self) -> None:
         """Disconnect from the WebSocket server"""
         if self.websocket:
             await self.websocket.close()
@@ -117,7 +115,7 @@ class WAVClient:
                 channels = wav_file.getnchannels()
                 sample_width = wav_file.getsampwidth()
 
-                print(f"WAV file info:")
+                print("WAV file info:")
                 print(f"  Sample rate: {sample_rate} Hz")
                 print(f"  Channels: {channels}")
                 print(f"  Sample width: {sample_width} bytes")
@@ -139,15 +137,17 @@ class WAVClient:
     def resample_if_needed(self, audio_info):
         """Resample audio to 16kHz if needed (simple approach)"""
         if audio_info["sample_rate"] != self.SAMPLE_RATE:
-            print(f"Warning: Server expects {self.SAMPLE_RATE}Hz, but file is {audio_info['sample_rate']}Hz")
+            print(
+                f"Warning: Server expects {self.SAMPLE_RATE}Hz, but file is {audio_info['sample_rate']}Hz"
+            )
             print("Consider resampling your audio file to 16kHz for better results")
             # Note: For production use, implement proper resampling with librosa or scipy
         return audio_info
 
-    async def send_audio_chunks(self, audio_data: bytes, chunk_size: int = 1024):
+    async def send_audio_chunks(self, audio_data: bytes, chunk_size: int = 1024) -> None:
         """Send audio data in chunks using protobuf format"""
         total_chunks = len(audio_data) // chunk_size
-        print(f"\n🎵 Starting audio streaming...")
+        print("\n🎵 Starting audio streaming...")
         print(f"📊 Total chunks to send: {total_chunks}")
         print(f"📦 Chunk size: {chunk_size} bytes")
         print(f"📈 Total data size: {len(audio_data)} bytes")
@@ -161,7 +161,9 @@ class WAVClient:
             print(f"\r🔄 Progress: {progress:.1f}% ({current_chunk}/{total_chunks})", end="")
 
             # Create audio frame
-            audio_frame = OutputAudioRawFrame(audio=chunk, sample_rate=self.SAMPLE_RATE, num_channels=self.NUM_CHANNELS)
+            audio_frame = OutputAudioRawFrame(
+                audio=chunk, sample_rate=self.SAMPLE_RATE, num_channels=self.NUM_CHANNELS
+            )
 
             # Serialize and send with retry mechanism
             max_retries = 3
@@ -173,14 +175,21 @@ class WAVClient:
                     if payload:
                         await self.websocket.send(payload)
                         break  # Success, exit retry loop
-                    else:
-                        print(f"\n⚠️ Failed to serialize chunk {current_chunk}, attempt {retry + 1}/{max_retries}")
-                        if retry == max_retries - 1:
-                            print(f"❌ Failed to send chunk {current_chunk} after {max_retries} attempts")
-                except Exception as e:
-                    print(f"\n⚠️ Error sending chunk {current_chunk}, attempt {retry + 1}/{max_retries}: {e}")
+                    print(
+                        f"\n⚠️ Failed to serialize chunk {current_chunk}, attempt {retry + 1}/{max_retries}"
+                    )
                     if retry == max_retries - 1:
-                        print(f"❌ Failed to send chunk {current_chunk} after {max_retries} attempts")
+                        print(
+                            f"❌ Failed to send chunk {current_chunk} after {max_retries} attempts"
+                        )
+                except Exception as e:
+                    print(
+                        f"\n⚠️ Error sending chunk {current_chunk}, attempt {retry + 1}/{max_retries}: {e}"
+                    )
+                    if retry == max_retries - 1:
+                        print(
+                            f"❌ Failed to send chunk {current_chunk} after {max_retries} attempts"
+                        )
                     await asyncio.sleep(0.1)  # Small delay before retry
 
             # Adaptive delay based on chunk size
@@ -189,7 +198,7 @@ class WAVClient:
 
         print("\n✅ Audio streaming completed")
 
-    async def play_audio(self, audio_data: bytes):
+    async def play_audio(self, audio_data: bytes) -> None:
         """Play audio data using sounddevice"""
         try:
             print(f"\n🔊 Playing audio of size: {len(audio_data)} bytes")
@@ -210,7 +219,7 @@ class WAVClient:
             print(f"   Audio data type: {type(audio_data)}")
             print(f"   Audio data length: {len(audio_data)}")
 
-    async def audio_player_task(self):
+    async def audio_player_task(self) -> None:
         """Background task to play audio from queue"""
         while True:
             try:
@@ -222,7 +231,7 @@ class WAVClient:
             except Exception as e:
                 print(f"\n⚠️ Error in audio player task: {e}")
 
-    async def listen_for_responses(self):
+    async def listen_for_responses(self) -> None:
         """Listen for server responses (transcriptions)"""
         try:
             print("\n🎧 Waiting for transcription results...")
@@ -270,7 +279,7 @@ class WAVClient:
         except Exception as e:
             print(f"\n❌ Error receiving responses: {e}")
 
-    async def process_wav_file(self, file_path: str):
+    async def process_wav_file(self, file_path: str) -> None:
         """Main method to process WAV file"""
         try:
             # Read WAV file
@@ -310,11 +319,13 @@ class WAVClient:
             await self.disconnect()
 
 
-async def main():
+async def main() -> None:
     parser = argparse.ArgumentParser(description="Send WAV file to NVIDIA Pipecat server")
     parser.add_argument("wav_file", help="Path to WAV file")
     parser.add_argument(
-        "--server", default="ws://localhost:8100/ws", help="WebSocket server URL (default: ws://localhost:8100/ws)"
+        "--server",
+        default="ws://localhost:8100/ws",
+        help="WebSocket server URL (default: ws://localhost:8100/ws)",
     )
 
     args = parser.parse_args()

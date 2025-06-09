@@ -1,7 +1,6 @@
-import psycopg2
 from openai.types.chat import ChatCompletionToolParam
 
-from ..connects import pg_connect
+from llm.connects import pg_connect
 
 # Tool parameter definition
 set_fan_speed_tool = ChatCompletionToolParam(
@@ -30,13 +29,12 @@ def get_fan_speed():
         result = cur.fetchone()
         if result:
             return result[0]
-        else:
-            return None
+        return None
     finally:
         cur.close()
 
 
-async def set_fan_speed_response(args):
+async def set_fan_speed_response(args) -> str:
     fan_upper_limit = 10
     fan_lower_limit = 0
     fan_speed = int(args["fan_speed"])  # Directly convert to integer
@@ -51,5 +49,6 @@ async def set_fan_speed_response(args):
         cur.connection.commit()
         cur.close()
         return f"The fan speed was set successfully. Current Fan speed: {fan_speed}"
-    else:
-        raise ValueError(f"Fan speed must be an integer between {fan_lower_limit} and {fan_upper_limit}.")
+    raise ValueError(
+        f"Fan speed must be an integer between {fan_lower_limit} and {fan_upper_limit}."
+    )

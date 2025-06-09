@@ -1,53 +1,52 @@
 """Speech-to-speech conversation bot with weather and time functions."""
 
-import argparse
 import os
+import argparse
+
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
 
-import uvicorn
-
 from fastapi import FastAPI
-from fastapi.staticfiles import StaticFiles
+from routers import tts
+import uvicorn
 from pydantic import BaseModel
-from pipecat.audio.vad.silero import SileroVADAnalyzer
-from pipecat.frames.frames import LLMMessagesFrame
-from pipecat.pipeline.pipeline import Pipeline
-from pipecat.pipeline.task import PipelineParams, PipelineTask
-from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
-from pipecat.services.nim import NimLLMService
-from pipecat.services.openai import OpenAILLMContext
 from src.llm.prompt import SYSTEM_PROMPT_TEMPLATE
-
+from src.llm.tools.fan import get_fan_speed, set_fan_speed_tool
+from fastapi.staticfiles import StaticFiles
+from pipecat.services.nim import NimLLMService
+from pipecat.frames.frames import LLMMessagesFrame
+from pipecat.pipeline.task import PipelineTask, PipelineParams
+from src.llm.tools.handler import handle_function
+from pipecat.services.openai import OpenAILLMContext
+from pipecat.audio.vad.silero import SileroVADAnalyzer
+from src.llm.tools.google_map import google_map_tool
+from pipecat.pipeline.pipeline import Pipeline
+from src.llm.tools.temperature import get_temp, set_temp_tool
+from nvidia_pipecat.utils.logging import setup_default_ace_logging
 
 # from src.llm.tools.time import get_current_time
 # from src.llm.tools.weather import get_current_weather
 from src.llm.tools.front_windshield import front_defrost_on_tool, get_front_defrost_status
-from src.llm.tools.fan import set_fan_speed_tool, get_fan_speed
-from src.llm.tools.temperature import set_temp_tool, get_temp
-from src.llm.tools.google_map import google_map_tool
-from src.llm.tools.handler import handle_function
-from routers import tts
 
-from nvidia_pipecat.pipeline.ace_pipeline_runner import ACEPipelineRunner, PipelineMetadata
+# from nvidia_pipecat.services.nvidia_llm import NvidiaLLMService
+from nvidia_pipecat.services.riva_speech import RivaASRService, RivaTTSService
+from nvidia_pipecat.pipeline.ace_pipeline_runner import PipelineMetadata, ACEPipelineRunner
+from pipecat.processors.aggregators.openai_llm_context import OpenAILLMContext
 
 # Uncomment the below lines enable speculative speech processing
 # from nvidia_pipecat.processors.nvidia_context_aggregator import (
 #     NvidiaTTSResponseCacher,
 #     create_nvidia_context_aggregator,
 # )
-from nvidia_pipecat.processors.transcript_synchronization import (
-    BotTranscriptSynchronization,
-    UserTranscriptSynchronization,
+from nvidia_pipecat.processors.transcript_synchronization import UserTranscriptSynchronization
+from nvidia_pipecat.transports.network.ace_fastapi_websocket import (
+    ACETransport,
+    ACETransportParams,
 )
-
-# from nvidia_pipecat.services.nvidia_llm import NvidiaLLMService
-from nvidia_pipecat.services.riva_speech import RivaASRService, RivaTTSService
-from nvidia_pipecat.transports.network.ace_fastapi_websocket import ACETransport, ACETransportParams
-from nvidia_pipecat.transports.services.ace_controller.routers.websocket_router import router as websocket_router
-from nvidia_pipecat.utils.logging import setup_default_ace_logging
-
+from nvidia_pipecat.transports.services.ace_controller.routers.websocket_router import (
+    router as websocket_router,
+)
 
 setup_default_ace_logging(level="DEBUG")
 
@@ -74,9 +73,7 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
     transport = ACETransport(
         websocket=pipeline_metadata.websocket,
         params=ACETransportParams(
-            vad_enabled=True,
-            vad_analyzer=SileroVADAnalyzer(),
-            vad_audio_passthrough=True,
+            vad_enabled=True, vad_analyzer=SileroVADAnalyzer(), vad_audio_passthrough=True
         ),
     )
     print("✅ WebSocket transport configured")
@@ -138,7 +135,9 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
 
     # Setup LLM context with system prompt
     SYSTEM_PROMPT = SYSTEM_PROMPT_TEMPLATE.format(
-        current_temp=get_temp(), current_fan_speed=get_fan_speed(), current_front_defrost=get_front_defrost_status()
+        current_temp=get_temp(),
+        current_fan_speed=get_fan_speed(),
+        current_front_defrost=get_front_defrost_status(),
     )
     print("System Prompt =\n", SYSTEM_PROMPT)
 
@@ -147,29 +146,22 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
     tools = [front_defrost_on_tool, set_temp_tool, set_fan_speed_tool, google_map_tool]
     print("🔧 Tools registered:", [tool["function"]["name"] for tool in tools])
 
-    messages = [
-        {
-            "role": "system",
-            "content": SYSTEM_PROMPT,
-        },
-    ]
+    messages = [{"role": "system", "content": SYSTEM_PROMPT}]
     context = OpenAILLMContext(messages, tools)
     context_aggregator = llm.create_context_aggregator(context)
     print("💬 LLM context initialized")
 
     # Build the processing pipeline
-    pipeline = Pipeline(
-        [
-            transport.input(),  # WebSocket input
-            stt,  # Speech-to-text
-            stt_transcript_synchronization,  # User transcript sync
-            context_aggregator.user(),  # User context processing
-            llm,  # LLM processing
-            tts,  # Text-to-speech
-            transport.output(),  # WebSocket output
-            context_aggregator.assistant(),  # Assistant context processing
-        ]
-    )
+    pipeline = Pipeline([
+        transport.input(),  # WebSocket input
+        stt,  # Speech-to-text
+        stt_transcript_synchronization,  # User transcript sync
+        context_aggregator.user(),  # User context processing
+        llm,  # LLM processing
+        tts,  # Text-to-speech
+        transport.output(),  # WebSocket output
+        context_aggregator.assistant(),  # Assistant context processing
+    ])
     print("🔄 Pipeline constructed")
 
     # Create pipeline task
@@ -190,15 +182,18 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
 
     # Handle client connections
     @transport.event_handler("on_client_connected")
-    async def on_client_connected(transport, client):
+    async def on_client_connected(transport, client) -> None:
         """Initialize conversation when client connects."""
         print("👋 Client connected - starting conversation")
-        messages.append({"role": "system", "content": '''Always Greet with: "Hello, how can I help you today?"'''})
+        messages.append({
+            "role": "system",
+            "content": '''Always Greet with: "Hello, how can I help you today?"''',
+        })
         await task.queue_frames([LLMMessagesFrame(messages)])
 
     # Handle client disconnections
     @transport.event_handler("on_client_disconnected")
-    async def on_client_disconnected(transport, client):
+    async def on_client_disconnected(transport, client) -> None:
         """Clean up when client disconnects."""
         print("👋 Client disconnected")
         if pipeline_metadata.stream_id in active_tasks:
@@ -215,7 +210,11 @@ app.include_router(tts.router)
 runner = ACEPipelineRunner(pipeline_callback=create_pipeline_task)
 
 # Serve static files
-app.mount("/static", StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static")), name="static")
+app.mount(
+    "/static",
+    StaticFiles(directory=os.path.join(os.path.dirname(__file__), "static")),
+    name="static",
+)
 
 
 # Event API to broadcast messages to all active streams
@@ -231,7 +230,7 @@ async def broadcast_message(event: EventMessage):
             messages = [
                 {
                     "role": "system",
-                    "content": f"Please inform the user: {event.message} without any other redundant decriptions.",
+                    "content": f"Please inform the user: {event.message} without any other redundant descriptions.",
                 }
             ]
             await task.queue_frames([LLMMessagesFrame(messages)])

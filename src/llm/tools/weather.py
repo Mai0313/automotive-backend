@@ -10,8 +10,15 @@ get_current_weather = ChatCompletionToolParam(
         "parameters": {
             "type": "object",
             "properties": {
-                "location": {"type": "string", "description": "City and state, e.g. San Francisco, CA"},
-                "format": {"type": "string", "enum": ["celsius", "fahrenheit"], "description": "Temperature unit"},
+                "location": {
+                    "type": "string",
+                    "description": "City and state, e.g. San Francisco, CA",
+                },
+                "format": {
+                    "type": "string",
+                    "enum": ["celsius", "fahrenheit"],
+                    "description": "Temperature unit",
+                },
             },
             "required": ["location", "format"],
         },

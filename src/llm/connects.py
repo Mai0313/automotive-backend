@@ -1,6 +1,6 @@
 import os
-import psycopg2
 
+import psycopg2
 
 PG_HOST = os.getenv("POSTGRES_HOST")
 PG_PORT = os.getenv("POSTGRES_PORT")
@@ -9,7 +9,9 @@ PG_USER = os.getenv("POSTGRES_USER")
 PG_PASSWORD = os.getenv("POSTGRES_PASSWORD")
 
 
-def pg_connect(conn_string=f"host={PG_HOST} user={PG_USER} dbname={PG_DBNAME} password={PG_PASSWORD} port={PG_PORT}"):
+def pg_connect(
+    conn_string=f"host={PG_HOST} user={PG_USER} dbname={PG_DBNAME} password={PG_PASSWORD} port={PG_PORT}",
+):
     conn = psycopg2.connect(conn_string)
     return conn.cursor()
 

@@ -1,12 +1,14 @@
+from .fan import set_fan_speed_response
 from .time import get_time_response
 from .weather import get_weather_response
-from .front_windshield import front_defrost_on_response
-from .temperature import set_temp_response
-from .fan import set_fan_speed_response
 from .google_map import google_map_response
+from .temperature import set_temp_response
+from .front_windshield import front_defrost_on_response
 
 
-async def handle_function(function_name, tool_call_id, args, llm, context, result_callback):
+async def handle_function(
+    function_name, tool_call_id, args, llm, context, result_callback
+) -> None:
     if function_name == "front_defrost_on":
         response = await front_defrost_on_response(args)
         print(f"❄️ Front defrost: {response}")

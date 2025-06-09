@@ -1,4 +1,5 @@
 import random
+
 from openai.types.chat import ChatCompletionToolParam
 
 # Tool parameter definition
@@ -22,7 +23,7 @@ google_map_tool = ChatCompletionToolParam(
 
 
 # 簡易 Google map 位置
-async def google_map_response(args):
+async def google_map_response(args) -> str:
     location = args["location"]
     num = round(random.uniform(1, 10), 1)
     return f"The nearest {location} is {num} kms away, do you want me to navigate for you with Google Maps?"

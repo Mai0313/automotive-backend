@@ -10,9 +10,7 @@ get_current_time = ChatCompletionToolParam(
         "description": "Get the current local time of a user-specified city",
         "parameters": {
             "type": "object",
-            "properties": {
-                "city": {"type": "string", "description": "City name to get time for"},
-            },
+            "properties": {"city": {"type": "string", "description": "City name to get time for"}},
             "required": ["city"],
         },
     },
@@ -21,7 +19,4 @@ get_current_time = ChatCompletionToolParam(
 
 async def get_time_response(args):
     now = datetime.datetime.now(UTC)
-    return {
-        "city": args["city"],
-        "utc_time": now.strftime("%Y-%m-%d %H:%M:%S UTC"),
-    }
+    return {"city": args["city"], "utc_time": now.strftime("%Y-%m-%d %H:%M:%S UTC")}

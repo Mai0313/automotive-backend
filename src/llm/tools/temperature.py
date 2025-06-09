@@ -1,7 +1,6 @@
-import psycopg2
 from openai.types.chat import ChatCompletionToolParam
 
-from ..connects import pg_connect
+from llm.connects import pg_connect
 
 # Tool parameter definition
 set_temp_tool = ChatCompletionToolParam(
@@ -31,14 +30,13 @@ def get_temp():
         result = cur.fetchone()
         if result:
             return result[0]
-        else:
-            return None
+        return None
     finally:
         cur.close()
 
 
 # 絕對溫度設定
-async def set_temp_response(args):
+async def set_temp_response(args) -> str:
     # temp = int(round(args["temp"]))  # Round to integer as specified
     temp = int(args["temp"])  # Directly convert to integer
     if not isinstance(temp, int):
@@ -50,5 +48,4 @@ async def set_temp_response(args):
         cur.connection.commit()
         cur.close()
         return f"The temperature was set successfully. Current AC temperature: {temp}°C"
-    else:
-        raise ValueError("Temperature must be an integer between 16 and 30.")
+    raise ValueError("Temperature must be an integer between 16 and 30.")

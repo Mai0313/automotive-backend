@@ -1,7 +1,6 @@
-import psycopg2
 from openai.types.chat import ChatCompletionToolParam
 
-from ..connects import pg_connect
+from llm.connects import pg_connect
 
 # Tool parameter definition
 front_defrost_on_tool = ChatCompletionToolParam(
@@ -15,7 +14,7 @@ front_defrost_on_tool = ChatCompletionToolParam(
                 "status": {
                     "type": "boolean",
                     "description": "`True` stands for turn on the defrost, and `False` stands for turn off the defrost.",
-                },
+                }
             },
             "required": ["status"],
         },
@@ -23,21 +22,20 @@ front_defrost_on_tool = ChatCompletionToolParam(
 )
 
 
-def get_front_defrost_status():
+def get_front_defrost_status() -> str | None:
     cur = pg_connect()
     try:
         cur.execute("SELECT front_defrost_on FROM ac_settings")
         result = cur.fetchone()
         if result:
             return "on" if result[0] else "off"
-        else:
-            return None
+        return None
     finally:
         cur.close()
 
 
 # 除霜開關
-async def front_defrost_on_response(args):
+async def front_defrost_on_response(args) -> str:
     status = args["status"]
 
     # handle string inputs for boolean
