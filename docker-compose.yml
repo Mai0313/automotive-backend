@@ -37,6 +37,4 @@ services:
       - server.py
     ports:
       - 8100:8100
-    volumes:
-      - .:/app
     restart: always
