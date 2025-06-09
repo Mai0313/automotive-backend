@@ -27,13 +27,16 @@ services:
     tty: true
 
   pipecat-server:
-    depends_on:
-      - vllm-server
-    image: ghcr.io/Mai0313/ace-controller:latest
-    build: .
-    network_mode: host
-    environment:
-      - FLASK_APP=server.py
+    image: ghcr.io/mai0313/ace-controller:latest
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile
+      target: prod
+    command:
+      - python
+      - server.py
+    ports:
+      - 8100:8100
     volumes:
       - .:/app
     restart: always
