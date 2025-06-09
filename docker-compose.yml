@@ -35,6 +35,8 @@ services:
     command:
       - python
       - server.py
+    volumes:
+      - .:/app
     ports:
       - 8100:8100
     restart: always
