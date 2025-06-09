@@ -76,7 +76,7 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
     transport = ACETransport(
         websocket=pipeline_metadata.websocket,
         params=ACETransportParams(
-            vad_enabled=True, vad_analyzer=SileroVADAnalyzer(params=VADParams(confidence=0.6, start_secs=0.1)), vad_audio_passthrough=True,
+            vad_enabled=True, vad_analyzer=SileroVADAnalyzer(params=VADParams(confidence=0.85, start_secs=0.1, stop_secs=1.2)), vad_audio_passthrough=True,
         ),
     )
     print("✅ WebSocket transport configured")
