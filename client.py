@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Client to send WAV file to NVIDIA Pipecat server for transcription.
 Uses protobuf format compatible with ACE Transport.
 """
@@ -102,7 +101,7 @@ class WAVClient:
             await self.websocket.close()
             print("Disconnected from server")
 
-    def read_wav_file(self, file_path: str):
+    def read_wav_file(self, file_path: str) -> dict:
         """Read and validate WAV file"""
         if not Path(file_path).exists():
             raise FileNotFoundError(f"WAV file not found: {file_path}")
@@ -132,9 +131,9 @@ class WAVClient:
                     "duration": frames / sample_rate,
                 }
         except Exception as e:
-            raise Exception(f"Error reading WAV file: {e}")
+            raise RuntimeError(f"Failed to read WAV file {file_path}: {e}")
 
-    def resample_if_needed(self, audio_info):
+    def resample_if_needed(self, audio_info: dict) -> dict:
         """Resample audio to 16kHz if needed (simple approach)"""
         if audio_info["sample_rate"] != self.SAMPLE_RATE:
             print(

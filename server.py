@@ -182,7 +182,7 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
 
     # Handle client connections
     @transport.event_handler("on_client_connected")
-    async def on_client_connected(transport, client) -> None:
+    async def on_client_connected(transport: ACETransport, client) -> None:
         """Initialize conversation when client connects."""
         print("👋 Client connected - starting conversation")
         messages.append({
