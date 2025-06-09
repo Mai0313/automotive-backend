@@ -61,15 +61,19 @@ jobs:
           fetch-depth: 1
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Set tags
-        id: set-tags
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "latest"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update Version
+        shell: bash
         run: |
-          if [[ $GITHUB_REF == refs/tags/* ]]; then
-            TAG_NAME=${GITHUB_REF#refs/tags/}
-            echo "MAIN_TAG=${TAG_NAME}" >> $GITHUB_OUTPUT
-          else
-            echo "MAIN_TAG=latest" >> $GITHUB_OUTPUT
-          fi
+          VERSION=$(uvx dunamai from git --bump --no-metadata --style pep440)
+          uv version $VERSION
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+          echo "GITHUB_SHA=${GITHUB_SHA}" >> $GITHUB_ENV
 
       - name: Free up space
         run: |
