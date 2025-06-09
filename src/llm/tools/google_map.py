@@ -7,7 +7,7 @@ google_map_tool = ChatCompletionToolParam(
     type="function",
     function={
         "name": "google_map",
-        "description": "Navigate to the target location with Google Maps.",
+        "description": "Navigate to or find the target location with Google Maps.",
         "parameters": {
             "type": "object",
             "properties": {
@@ -26,4 +26,4 @@ google_map_tool = ChatCompletionToolParam(
 async def google_map_response(args) -> str:
     location = args["location"]
     num = round(random.uniform(1, 10), 1)
-    return f"The nearest {location} is {num} kms away, do you want me to navigate for you with Google Maps?"
+    return f"The nearest {location} is {num} kms away. I will navigate you to the {location} now. Please follow the directions on the map."
