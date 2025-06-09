@@ -17,6 +17,7 @@ from pipecat.pipeline.task import PipelineTask, PipelineParams
 from fastapi.middleware.cors import CORSMiddleware
 from pipecat.services.openai import OpenAILLMContext
 from pipecat.audio.vad.silero import SileroVADAnalyzer
+from pipecat.audio.vad.vad_analyzer import VADParams
 from pipecat.pipeline.pipeline import Pipeline
 from nvidia_pipecat.utils.logging import setup_default_ace_logging
 
@@ -75,7 +76,7 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
     transport = ACETransport(
         websocket=pipeline_metadata.websocket,
         params=ACETransportParams(
-            vad_enabled=True, vad_analyzer=SileroVADAnalyzer(), vad_audio_passthrough=True
+            vad_enabled=True, vad_analyzer=SileroVADAnalyzer(params=VADParams(confidence=0.6, start_secs=0.1)), vad_audio_passthrough=True,
         ),
     )
     print("✅ WebSocket transport configured")
@@ -243,7 +244,7 @@ async def broadcast_message(event: EventMessage):
             messages = [
                 {
                     "role": "system",
-                    "content": f"Please inform the user: {event.message} without any other redundant descriptions.",
+                    "content": f"Please inform the user about only the info in natural languages. info: `{event.message}`.",
                 }
             ]
             await task.queue_frames([LLMMessagesFrame(messages)])
