@@ -8,26 +8,16 @@ from dotenv import load_dotenv
 load_dotenv(override=True)
 
 from fastapi import FastAPI
-from routers import tts
 import uvicorn
 from pydantic import BaseModel
-from src.llm.prompt import SYSTEM_PROMPT_TEMPLATE
-from src.llm.tools.fan import get_fan_speed, set_fan_speed_tool
 from fastapi.staticfiles import StaticFiles
 from pipecat.services.nim import NimLLMService
 from pipecat.frames.frames import LLMMessagesFrame
 from pipecat.pipeline.task import PipelineTask, PipelineParams
-from src.llm.tools.handler import handle_function
 from pipecat.services.openai import OpenAILLMContext
 from pipecat.audio.vad.silero import SileroVADAnalyzer
-from src.llm.tools.google_map import google_map_tool
 from pipecat.pipeline.pipeline import Pipeline
-from src.llm.tools.temperature import get_temp, set_temp_tool
 from nvidia_pipecat.utils.logging import setup_default_ace_logging
-
-# from src.llm.tools.time import get_current_time
-# from src.llm.tools.weather import get_current_weather
-from src.llm.tools.front_windshield import front_defrost_on_tool, get_front_defrost_status
 
 # from nvidia_pipecat.services.nvidia_llm import NvidiaLLMService
 from nvidia_pipecat.services.riva_speech import RivaASRService, RivaTTSService
@@ -47,6 +37,17 @@ from nvidia_pipecat.transports.network.ace_fastapi_websocket import (
 from nvidia_pipecat.transports.services.ace_controller.routers.websocket_router import (
     router as websocket_router,
 )
+
+from src.routers import tts
+from src.llm.prompt import SYSTEM_PROMPT_TEMPLATE
+from src.llm.tools.fan import get_fan_speed, set_fan_speed_tool
+from src.llm.tools.handler import handle_function
+from src.llm.tools.google_map import google_map_tool
+from src.llm.tools.temperature import get_temp, set_temp_tool
+
+# from src.llm.tools.time import get_current_time
+# from src.llm.tools.weather import get_current_weather
+from src.llm.tools.front_windshield import front_defrost_on_tool, get_front_defrost_status
 
 setup_default_ace_logging(level="DEBUG")
 
