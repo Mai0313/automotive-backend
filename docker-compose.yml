@@ -29,7 +29,7 @@ services:
   pipecat-server:
     depends_on:
       - vllm-server
-    image: ghcr.io/yaominlouis/ace-controller:latest
+    image: ghcr.io/Mai0313/ace-controller:latest
     build: .
     network_mode: host
     environment:
