@@ -1,25 +1,17 @@
-name: Release Drafter
+name: Publish GitHub Pages
 
 on:
   push:
-    # branches to consider in the event; optional, defaults to all
     branches:
       - master
     tags:
       - v*
-  # pull_request event is required only for autolabeler
-  pull_request:
-    # Only following types are handled by the action, but one can default to all as well
-    types: [opened, reopened, synchronize]
-  # pull_request_target event is required for autolabeler to support PRs from forks
-  pull_request_target:
-    types: [opened, reopened, synchronize]
 
 permissions: write-all
 
 jobs:
-  update_release_draft:
-    name: Update Release Draft
+  deploy:
+    name: Deploy
     runs-on: ubuntu-latest
     # container: catthehacker/ubuntu:act-20.04  # Uncomment it if you use it on Gitea
 
@@ -45,14 +37,28 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: release-drafter/release-drafter@v6
-        id: drafter
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
         with:
-          config-name: release-drafter.yml
-          publish: false
-          disable-autolabeler: false
+          version: "latest"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Deploy docs
+        run: |
+          uv sync --group docs
+          uv run make gen-docs
+          uv run mkdocs build
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Upload to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./site
+
+      - name: Publish to GitHub Pages
+        uses: actions/deploy-pages@v4

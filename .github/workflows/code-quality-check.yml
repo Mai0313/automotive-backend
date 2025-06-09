@@ -1,25 +1,18 @@
-name: Release Drafter
+# This workflow finds which files were changed, prints them,
+# and runs `pre-commit` on those files.
+
+# Inspired by the sktime library:
+# https://github.com/alan-turing-institute/sktime/blob/main/.github/workflows/test.yml
+
+name: Code Quality Check
 
 on:
-  push:
-    # branches to consider in the event; optional, defaults to all
-    branches:
-      - master
-    tags:
-      - v*
-  # pull_request event is required only for autolabeler
   pull_request:
-    # Only following types are handled by the action, but one can default to all as well
-    types: [opened, reopened, synchronize]
-  # pull_request_target event is required for autolabeler to support PRs from forks
-  pull_request_target:
-    types: [opened, reopened, synchronize]
 
 permissions: write-all
 
 jobs:
-  update_release_draft:
-    name: Update Release Draft
+  code-quality-check:
     runs-on: ubuntu-latest
     # container: catthehacker/ubuntu:act-20.04  # Uncomment it if you use it on Gitea
 
@@ -45,14 +38,16 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: release-drafter/release-drafter@v6
-        id: drafter
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v6
         with:
-          config-name: release-drafter.yml
-          publish: false
-          disable-autolabeler: false
+          version: "latest"
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run pre-commits
+        run: |
+          uv tool install pre-commit
+          uv tool run pre-commit run -a

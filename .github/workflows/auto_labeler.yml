@@ -1,25 +1,12 @@
-name: Release Drafter
+name: Pull Request Labeler
 
 on:
-  push:
-    # branches to consider in the event; optional, defaults to all
-    branches:
-      - master
-    tags:
-      - v*
-  # pull_request event is required only for autolabeler
   pull_request:
-    # Only following types are handled by the action, but one can default to all as well
-    types: [opened, reopened, synchronize]
-  # pull_request_target event is required for autolabeler to support PRs from forks
-  pull_request_target:
-    types: [opened, reopened, synchronize]
 
 permissions: write-all
 
 jobs:
-  update_release_draft:
-    name: Update Release Draft
+  labeler:
     runs-on: ubuntu-latest
     # container: catthehacker/ubuntu:act-20.04  # Uncomment it if you use it on Gitea
 
@@ -45,14 +32,12 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0
+          fetch-depth: 1
           token: ${{ secrets.GITHUB_TOKEN }}
 
-      - uses: release-drafter/release-drafter@v6
-        id: drafter
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Labeler
+        id: labeler
+        uses: actions/labeler@v5
         with:
-          config-name: release-drafter.yml
-          publish: false
-          disable-autolabeler: false
+          sync-labels: true
+          configuration-path: .github/labeler.yml
