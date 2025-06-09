@@ -217,7 +217,7 @@ opentelemetry-api==1.33.1
     #   opentelemetry-semantic-conventions
 opentelemetry-instrumentation==0.54b1
     # via opentelemetry-instrumentation-grpc
-opentelemetry-instrumentation-grpc==0.54b1
+opentelemetry-instrumentation-grpc==0.55b0
     # via nvidia-pipecat
 opentelemetry-sdk==1.33.1
     # via nvidia-pipecat
