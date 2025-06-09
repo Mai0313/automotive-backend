@@ -26,17 +26,18 @@ services:
     stdin_open: true
     tty: true
 
-  pipecat-server:
-    image: ghcr.io/mai0313/ace-controller:latest
-    build:
-      context: .
-      dockerfile: ./docker/Dockerfile
-      target: prod
-    command:
-      - python
-      - server.py
-    volumes:
-      - .:/app
-    ports:
-      - 8100:8100
-    restart: always
+  # pipecat-server:
+  #   image: ghcr.io/mai0313/ace-controller:latest
+  #   build:
+  #     context: .
+  #     dockerfile: ./docker/Dockerfile
+  #     target: prod
+  #   network_mode: host
+  #   command:
+  #     - python
+  #     - server.py
+  #   volumes:
+  #     - .:/app
+  #   ports:
+  #     - 8100:8100
+  #   restart: always
