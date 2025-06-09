@@ -6,7 +6,7 @@ WORKDIR /app
 # Copy the rest of the application code
 COPY . .
 RUN uv export --no-dev --no-hashes --output-file ./requirements.lock && \
-    uv pip install --system -r requirements.lock && \
+    uv pip install --no-cache --system -r requirements.lock && \
     uv cache clean
 
 # Expose the port the app runs on
