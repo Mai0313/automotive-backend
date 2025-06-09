@@ -190,7 +190,7 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
         print("👋 Client connected - starting conversation")
         messages.append({
             "role": "system",
-            "content": '''Always Greet with: "Hello, how can I help you today?"''',
+            "content": '''Please Greet with: "Hello, how can I help you today?" at the start of the whole conversation without any additional words.''',
         })
         await task.queue_frames([LLMMessagesFrame(messages)])
 
@@ -244,7 +244,7 @@ async def broadcast_message(event: EventMessage):
             messages = [
                 {
                     "role": "system",
-                    "content": f"Please inform the user about only the info in natural languages. info: `{event.message}`.",
+                    "content": f"Please inform the user: `{event.message}`. This is a broadcast message. Do not add any additional information including special characters.",
                 }
             ]
             await task.queue_frames([LLMMessagesFrame(messages)])
