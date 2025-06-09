@@ -1,6 +1,6 @@
 from openai.types.chat import ChatCompletionToolParam
 
-from llm.connects import pg_connect
+from src.llm.connects import pg_connect
 
 # Tool parameter definition
 set_fan_speed_tool = ChatCompletionToolParam(
