@@ -61,7 +61,7 @@ omit = ["./src/ameba/*"]
 # ================== #
 
 [project]
-name = "automotive_backend"
+name = "automotive-backend"
 version = "0.1.0"
 description = "Automotive Backend for AI-powered vehicle systems"
 dependencies = [
@@ -82,8 +82,8 @@ requires-python = ">= 3.12"
 license = { text = "MIT" }
 
 [project.urls]
-Homepage = "https://github.com/Mai0313/automotive_backend"
-Repository = "https://github.com/Mai0313/automotive_backend"
+Homepage = "https://github.com/Mai0313/automotive-backend"
+Repository = "https://github.com/Mai0313/automotive-backend"
 
 [build-system]
 requires = ["hatchling", "hatch-fancy-pypi-readme"]

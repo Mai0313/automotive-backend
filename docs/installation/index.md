@@ -95,8 +95,8 @@ This page will guide you through the installation process this project.
 === "Conda"
 
     ```bash
-    conda create -n automotive_backend python=3.10 -y
-    conda activate automotive_backend
+    conda create -n automotive-backend python=3.10 -y
+    conda activate automotive-backend
     conda install uv
     uv pip sync pyproject.toml
     ```
