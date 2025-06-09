@@ -56,7 +56,7 @@ class EventMessage(BaseModel):
     message: str
 
 
-active_tasks = {}
+active_tasks: dict[str, PipelineTask] = {}
 
 
 async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
