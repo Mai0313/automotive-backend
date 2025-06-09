@@ -1,4 +1,4 @@
-FROM nikolaik/python-nodejs:python3.12-nodejs20 AS builder
+FROM python:3.12.9 AS builder
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 
 FROM builder AS prod
