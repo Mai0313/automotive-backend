@@ -66,9 +66,9 @@ jobs:
         run: |
           if [[ $GITHUB_REF == refs/tags/* ]]; then
             TAG_NAME=${GITHUB_REF#refs/tags/}
-            echo "VERSION=$TAG_NAME" >> $GITHUB_OUTPUT
+            echo "VERSION=$TAG_NAME" >> $GITHUB_ENV
           else
-            echo "VERSION=latest" >> $GITHUB_OUTPUT
+            echo "VERSION=latest" >> $GITHUB_ENV
           fi
 
       - name: Free up space
