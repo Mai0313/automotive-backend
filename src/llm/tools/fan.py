@@ -40,8 +40,8 @@ async def set_fan_speed_response(args) -> str:
     fan_speed = int(args["fan_speed"])  # Directly convert to integer
     fan_speed = max(min(fan_speed, fan_upper_limit), fan_lower_limit)
 
-    if not isinstance(fan_speed, int):
-        raise TypeError("Fan speed must be an integer.")
+    # if not isinstance(fan_speed, int):
+    #     raise TypeError("Fan speed must be an integer.")
 
     # if 0 <= fan_speed <= 5:
     cur = pg_connect()
