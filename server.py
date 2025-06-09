@@ -14,6 +14,7 @@ from fastapi.staticfiles import StaticFiles
 from pipecat.services.nim import NimLLMService
 from pipecat.frames.frames import LLMMessagesFrame
 from pipecat.pipeline.task import PipelineTask, PipelineParams
+from fastapi.middleware.cors import CORSMiddleware
 from pipecat.services.openai import OpenAILLMContext
 from pipecat.audio.vad.silero import SileroVADAnalyzer
 from pipecat.pipeline.pipeline import Pipeline
@@ -89,13 +90,13 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
             api_key=NVIDIA_API_KEY,
             model="parakeet-0.6b-en-US-asr-streaming-throughput-asr-bls-ensemble",
             language="en-US",
-            sample_rate=24000,
+            sample_rate=48000,
         )
         tts = RivaTTSService(
             server=os.getenv("RIVA_TTS_SERVER"),
             api_key=NVIDIA_API_KEY,
             language="en-US",
-            sample_rate=24000,
+            sample_rate=48000,
         )
         llm = NimLLMService(
             api_key=NVIDIA_API_KEY,
@@ -109,7 +110,7 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
             server="grpc.nvcf.nvidia.com:443",
             api_key=NVIDIA_API_KEY,
             language="en-US",
-            sample_rate=24000,
+            sample_rate=48000,
             metadata=[
                 ("function-id", "d8dd4e9b-fbf5-4fb0-9dba-8cf436c8d965"),
                 ("authorization", f"Bearer {NVIDIA_API_KEY}"),
@@ -119,7 +120,7 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
             server="grpc.nvcf.nvidia.com:443",
             api_key=NVIDIA_API_KEY,
             language="en-US",
-            sample_rate=24000,
+            sample_rate=48000,
             metadata=[
                 ("function-id", "0149dedb-2be8-4195-b9a0-e57e0e14f972"),
                 ("authorization", f"Bearer {NVIDIA_API_KEY}"),
@@ -206,6 +207,17 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
 
 # Initialize FastAPI app
 app = FastAPI()
+
+
+# Add CORS middleware with appropriate configuration
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],  # Allows all origins
+    allow_credentials=True,
+    allow_methods=["*"],  # Allows all methods
+    allow_headers=["*"],  # Allows all headers
+)
+
 app.include_router(websocket_router)
 app.include_router(tts.router)
 runner = ACEPipelineRunner(pipeline_callback=create_pipeline_task)
