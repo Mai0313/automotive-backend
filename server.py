@@ -76,7 +76,11 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
     transport = ACETransport(
         websocket=pipeline_metadata.websocket,
         params=ACETransportParams(
-            vad_enabled=True, vad_analyzer=SileroVADAnalyzer(params=VADParams(confidence=0.85, start_secs=0.1, stop_secs=1.2)), vad_audio_passthrough=True,
+            vad_enabled=True,
+            vad_analyzer=SileroVADAnalyzer(
+                params=VADParams(confidence=0.9, start_secs=0.3, stop_secs=1.5)
+            ),
+            vad_audio_passthrough=True,
         ),
     )
     print("✅ WebSocket transport configured")
@@ -92,6 +96,7 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
             model="parakeet-0.6b-en-US-asr-streaming-throughput-asr-bls-ensemble",
             language="en-US",
             sample_rate=16000,
+            idle_timeout=15
         )
         tts = RivaTTSService(
             server=os.getenv("RIVA_TTS_SERVER"),
@@ -111,6 +116,7 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
             server="grpc.nvcf.nvidia.com:443",
             api_key=NVIDIA_API_KEY,
             language="en-US",
+            interim_results=False,
             sample_rate=16000,
             metadata=[
                 ("function-id", "d8dd4e9b-fbf5-4fb0-9dba-8cf436c8d965"),
@@ -188,10 +194,7 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
     async def on_client_connected(transport: ACETransport, client) -> None:
         """Initialize conversation when client connects."""
         print("👋 Client connected - starting conversation")
-        messages.append({
-            "role": "system",
-            "content": GREETING_PROMPT,
-        })
+        messages.append({"role": "system", "content": GREETING_PROMPT})
         await task.queue_frames([LLMMessagesFrame(messages)])
 
     # Handle client disconnections
@@ -244,7 +247,7 @@ async def broadcast_message(event: EventMessage):
             messages = [
                 {
                     "role": "system",
-                    "content": BROADCAST_PROMPT_TEMPLATE.format(message=event.message)
+                    "content": BROADCAST_PROMPT_TEMPLATE.format(message=event.message),
                 }
             ]
             await task.queue_frames([LLMMessagesFrame(messages)])
