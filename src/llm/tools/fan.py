@@ -13,7 +13,7 @@ set_fan_speed_tool = ChatCompletionToolParam(
             "properties": {
                 "fan_speed": {
                     "type": "integer",
-                    "description": "Target fan speed, if user provide a floating point, please round it to an integer. If the fan speed is outside the range of 0-5, please set 0 if below, and set 5 if above.",
+                    "description": "Target fan speed, if user provide a floating point, please round it to an integer. If the fan speed is outside the range of 0-5, please set 0 if below, which indicates turning off the fan, and set 5 if above.",
                 }
             },
             "required": ["fan_speed"],
