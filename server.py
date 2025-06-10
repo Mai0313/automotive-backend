@@ -41,7 +41,7 @@ from nvidia_pipecat.transports.services.ace_controller.routers.websocket_router 
 )
 
 from src.routers import tts
-from src.llm.prompt import SYSTEM_PROMPT_TEMPLATE
+from src.llm.prompt import SYSTEM_PROMPT_TEMPLATE, BROADCAST_PROMPT_TEMPLATE, GREETING_PROMPT
 from src.llm.tools.fan import get_fan_speed, set_fan_speed_tool
 from src.llm.tools.handler import handle_function
 from src.llm.tools.google_map import google_map_tool
@@ -190,7 +190,7 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
         print("👋 Client connected - starting conversation")
         messages.append({
             "role": "system",
-            "content": '''Please Greet with: "Hello, how can I help you today?" at the start of the whole conversation without any additional words.''',
+            "content": GREETING_PROMPT,
         })
         await task.queue_frames([LLMMessagesFrame(messages)])
 
@@ -244,7 +244,7 @@ async def broadcast_message(event: EventMessage):
             messages = [
                 {
                     "role": "system",
-                    "content": f"Please inform the user: `{event.message}`. This is a broadcast message. Do not add any additional information including special characters.",
+                    "content": BROADCAST_PROMPT_TEMPLATE.format(message=event.message)
                 }
             ]
             await task.queue_frames([LLMMessagesFrame(messages)])
