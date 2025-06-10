@@ -78,7 +78,7 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
         params=ACETransportParams(
             vad_enabled=True,
             vad_analyzer=SileroVADAnalyzer(
-                params=VADParams(confidence=0.9, start_secs=0.3, stop_secs=1.5)
+                params=VADParams(confidence=0.9, start_secs=0.2, stop_secs=2.5, min_volume=0.6)
             ),
             vad_audio_passthrough=True,
         ),
@@ -96,7 +96,8 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
             model="parakeet-0.6b-en-US-asr-streaming-throughput-asr-bls-ensemble",
             language="en-US",
             sample_rate=16000,
-            idle_timeout=15
+            idle_timeout=15,
+            automatic_punctuation=True
         )
         tts = RivaTTSService(
             server=os.getenv("RIVA_TTS_SERVER"),
