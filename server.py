@@ -17,9 +17,9 @@ from pipecat.pipeline.task import PipelineTask, PipelineParams
 from fastapi.middleware.cors import CORSMiddleware
 from pipecat.services.openai import OpenAILLMContext
 from pipecat.audio.vad.silero import SileroVADAnalyzer
-from pipecat.audio.vad.vad_analyzer import VADParams
 from pipecat.pipeline.pipeline import Pipeline
 from nvidia_pipecat.utils.logging import setup_default_ace_logging
+from pipecat.audio.vad.vad_analyzer import VADParams
 
 # from nvidia_pipecat.services.nvidia_llm import NvidiaLLMService
 from nvidia_pipecat.services.riva_speech import RivaASRService, RivaTTSService
@@ -41,7 +41,7 @@ from nvidia_pipecat.transports.services.ace_controller.routers.websocket_router 
 )
 
 from src.routers import tts
-from src.llm.prompt import SYSTEM_PROMPT_TEMPLATE, BROADCAST_PROMPT_TEMPLATE, GREETING_PROMPT
+from src.llm.prompt import GREETING_PROMPT, SYSTEM_PROMPT_TEMPLATE, BROADCAST_PROMPT_TEMPLATE
 from src.llm.tools.fan import get_fan_speed, set_fan_speed_tool
 from src.llm.tools.handler import handle_function
 from src.llm.tools.google_map import google_map_tool
@@ -97,7 +97,7 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
             language="en-US",
             sample_rate=16000,
             idle_timeout=15,
-            automatic_punctuation=True
+            automatic_punctuation=True,
         )
         tts = RivaTTSService(
             server=os.getenv("RIVA_TTS_SERVER"),

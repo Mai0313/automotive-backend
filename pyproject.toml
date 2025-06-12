@@ -171,8 +171,8 @@ content-type = "text/markdown"
 path = "README.md"
 
 [tool.poe.tasks]
-api = "python ./api.py"
-main = "python ./main.py"
+api = "python ./server.py"
+main = "python ./client.py"
 
 # Documentation
 docs_gen = "make gen-docs"
