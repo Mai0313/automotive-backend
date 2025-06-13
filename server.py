@@ -41,15 +41,18 @@ from nvidia_pipecat.transports.services.ace_controller.routers.websocket_router 
 )
 
 from src.routers import tts
-from src.llm.prompt import GREETING_PROMPT, SYSTEM_PROMPT_TEMPLATE, BROADCAST_PROMPT_TEMPLATE
+from src.llm.prompt import (
+    SYSTEM_PROMPT_TEMPLATE,
+    BROADCAST_PROMPT_TEMPLATE,
+    GREETING_PROMPT,
+    VLLM_CHAT_PROMPT_FIX,
+)
 from src.llm.tools.fan import get_fan_speed, set_fan_speed_tool
 from src.llm.tools.handler import handle_function
 from src.llm.tools.google_map import google_map_tool
 from src.llm.tools.temperature import get_temp, set_temp_tool
-
-# from src.llm.tools.time import get_current_time
-# from src.llm.tools.weather import get_current_weather
 from src.llm.tools.front_windshield import front_defrost_on_tool, get_front_defrost_status
+from src.tts.filler import FillerProcessor
 
 setup_default_ace_logging(level="DEBUG")
 
@@ -78,7 +81,7 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
         params=ACETransportParams(
             vad_enabled=True,
             vad_analyzer=SileroVADAnalyzer(
-                params=VADParams(confidence=0.9, start_secs=0.2, stop_secs=2.5, min_volume=0.6)
+                params=VADParams(confidence=0.7, start_secs=0.2, stop_secs=0.35, min_volume=0.5)
             ),
             vad_audio_passthrough=True,
         ),
@@ -93,11 +96,13 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
         stt = RivaASRService(
             server=os.getenv("RIVA_ASR_SERVER"),
             api_key=NVIDIA_API_KEY,
-            model="parakeet-0.6b-en-US-asr-streaming-throughput-asr-bls-ensemble",
+            # model="parakeet-0.6b-en-US-asr-streaming-throughput-asr-bls-ensemble",
+            model="conformer-en-US-asr-streaming-throughput-asr-bls-ensemble",
             language="en-US",
+            interim_results=False,
             sample_rate=16000,
             idle_timeout=15,
-            automatic_punctuation=True,
+            # automatic_punctuation=True,
         )
         tts = RivaTTSService(
             server=os.getenv("RIVA_TTS_SERVER"),
@@ -110,6 +115,7 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
             base_url=os.getenv("VLLM_BASE_URL"),
             model="meta-llama/Llama-3.1-8B-Instruct",
             max_tokens=4096,
+            # temperature=0.5,
         )
     else:
         print("☁️  Using cloud NVIDIA services")
@@ -143,8 +149,13 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
     stt_transcript_synchronization = UserTranscriptSynchronization()
     print("📝 Transcript sync enabled")
 
+    # Create filler processor
+    filler_processor = FillerProcessor()
+    print("🎯 Filler processor created")
+
     # Setup LLM context with system prompt
     SYSTEM_PROMPT = SYSTEM_PROMPT_TEMPLATE.format(
+        vllm_chat_prompt_fix=VLLM_CHAT_PROMPT_FIX,
         current_temp=get_temp(),
         current_fan_speed=get_fan_speed(),
         current_front_defrost=get_front_defrost_status(),
@@ -152,7 +163,6 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
     print("System Prompt =\n", SYSTEM_PROMPT)
 
     # Define available tools for LLM
-    # tools = [get_current_weather, get_current_time]
     tools = [front_defrost_on_tool, set_temp_tool, set_fan_speed_tool, google_map_tool]
     print("🔧 Tools registered:", [tool["function"]["name"] for tool in tools])
 
@@ -161,18 +171,19 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
     context_aggregator = llm.create_context_aggregator(context)
     print("💬 LLM context initialized")
 
-    # Build the processing pipeline
+    # Build the processing pipeline with filler processor
     pipeline = Pipeline([
         transport.input(),  # WebSocket input
         stt,  # Speech-to-text
         stt_transcript_synchronization,  # User transcript sync
+        filler_processor,  # Add filler processor after STT
         context_aggregator.user(),  # User context processing
         llm,  # LLM processing
         tts,  # Text-to-speech
         transport.output(),  # WebSocket output
         context_aggregator.assistant(),  # Assistant context processing
     ])
-    print("🔄 Pipeline constructed")
+    print("🔄 Pipeline constructed with filler processor")
 
     # Create pipeline task
     task = PipelineTask(
@@ -212,7 +223,6 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
 
 # Initialize FastAPI app
 app = FastAPI()
-
 
 # Add CORS middleware with appropriate configuration
 app.add_middleware(
