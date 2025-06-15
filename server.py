@@ -55,6 +55,7 @@ from src.llm.tools.front_windshield import front_defrost_on_tool, get_front_defr
 from src.tts.filler import FillerProcessor
 
 setup_default_ace_logging(level="DEBUG")
+RECORDING_CONFIG = VADParams(confidence=0.4, start_secs=0.1, stop_secs=0.1, min_volume=0.5)
 
 
 class EventMessage(BaseModel):
@@ -80,9 +81,7 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
         websocket=pipeline_metadata.websocket,
         params=ACETransportParams(
             vad_enabled=True,
-            vad_analyzer=SileroVADAnalyzer(
-                params=VADParams(confidence=0.7, start_secs=0.2, stop_secs=0.35, min_volume=0.5)
-            ),
+            vad_analyzer=SileroVADAnalyzer(params=RECORDING_CONFIG),
             vad_audio_passthrough=True,
         ),
     )
@@ -206,7 +205,7 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
     async def on_client_connected(transport: ACETransport, client) -> None:
         """Initialize conversation when client connects."""
         print("👋 Client connected - starting conversation")
-        messages.append({"role": "system", "content": GREETING_PROMPT})
+        # messages.append({"role": "system", "content": GREETING_PROMPT})
         await task.queue_frames([LLMMessagesFrame(messages)])
 
     # Handle client disconnections

@@ -40,9 +40,7 @@ class FillerProcessor(FrameProcessor):
         text_lower = text.lower()
 
         # Context-aware acknowledgments
-        if any(
-            word in text_lower for word in ["temperature", "temp", "hot", "cold", "climate", "ice"]
-        ):
+        if any(word in text_lower for word in ["temperature", "temp", "hot", "cold", "climate"]):
             return random.choice([
                 "Let me check the temperature.",
                 "I'll look into the temperature settings.",
@@ -50,12 +48,11 @@ class FillerProcessor(FrameProcessor):
                 "Let me adjust that for you.",
                 "Hang tight, I'm on it.",
                 "One moment, please.",
-                "I'll get that info for you.",
                 "Let me take a quick look.",
                 "Checking temperature now.",
                 "Give me a moment.",
             ])
-        elif any(word in text_lower for word in ["fan", "air", "blow"]):
+        elif any(word in text_lower for word in ["fan", "air", "blow", "blower"]):
             return random.choice([
                 "I'll adjust the fan for you.",
                 "Let me help with the airflow.",
@@ -67,7 +64,8 @@ class FillerProcessor(FrameProcessor):
                 "I'll get on that.",
             ])
         elif any(
-            word in text_lower for word in ["defrost", "windshield", "window", "front", "glass"]
+            word in text_lower
+            for word in ["defrost", "windshield", "window", "front", "glass", "ice"]
         ):
             return random.choice([
                 "I'll check the defrost settings.",

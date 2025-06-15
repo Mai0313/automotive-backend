@@ -37,16 +37,11 @@ def get_temp():
 
 # 絕對溫度設定
 async def set_temp_response(args) -> str:
-    # temp = int(round(args["temp"]))  # Round to integer as specified
     temp = int(args["temp"])  # Directly convert to integer
-    temp = max(min(temp, 30), 16)  # Ensure temp is between 16 and 30
-    # if not isinstance(temp, int):
-    #     raise TypeError("Temperature must be an integer.")
+    temp = max(min(temp, 28), 16)  # Ensure temp is between 16 and 28
 
-    # if 16 <= temp <= 30:
     cur = pg_connect()
     cur.execute("UPDATE ac_settings SET temperature = %s", (temp,))
     cur.connection.commit()
     cur.close()
     return f"The temperature was set successfully. Current AC temperature: {temp}°C"
-    # raise ValueError("Temperature must be an integer between 16 and 30.")
