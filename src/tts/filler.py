@@ -40,7 +40,10 @@ class FillerProcessor(FrameProcessor):
         text_lower = text.lower()
 
         # Context-aware acknowledgments
-        if any(word in text_lower for word in ["temperature", "temp", "hot", "cold", "climate"]):
+        if any(
+            word in text_lower
+            for word in ["temperature", "temp", "hot", "cold", "climate", " ac "]
+        ):
             return random.choice([
                 "Let me check the temperature.",
                 "I'll look into the temperature settings.",
@@ -89,7 +92,19 @@ class FillerProcessor(FrameProcessor):
                 "Hang tight, getting the map.",
                 "I'll guide you there.",
             ])
-        elif "?" in text:
+        # elif "?" in text:
+        #     return random.choice([
+        #         "Wait a sec.",
+        #         "Hold on.",
+        #         "Hang on a sec.",
+        #         "One moment.",
+        #         "Let me think.",
+        #         "Give me a second.",
+        #         "I'm checking on it.",
+        #     ])
+        # else:
+        #     return ""
+        else:
             return random.choice([
                 "Wait a sec.",
                 "Hold on.",
@@ -99,5 +114,3 @@ class FillerProcessor(FrameProcessor):
                 "Give me a second.",
                 "I'm checking on it.",
             ])
-        else:
-            return ""
