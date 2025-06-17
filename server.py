@@ -56,6 +56,7 @@ from src.tts.filler import FillerProcessor
 
 setup_default_ace_logging(level="DEBUG")
 RECORDING_CONFIG = VADParams(confidence=0.4, start_secs=0.1, stop_secs=0.1, min_volume=0.5)
+DEMO_CONFIG = VADParams()
 
 
 class EventMessage(BaseModel):

@@ -92,18 +92,8 @@ class FillerProcessor(FrameProcessor):
                 "Hang tight, getting the map.",
                 "I'll guide you there.",
             ])
-        # elif "?" in text:
-        #     return random.choice([
-        #         "Wait a sec.",
-        #         "Hold on.",
-        #         "Hang on a sec.",
-        #         "One moment.",
-        #         "Let me think.",
-        #         "Give me a second.",
-        #         "I'm checking on it.",
-        #     ])
-        # else:
-        #     return ""
+        elif text_lower.strip() in ["hey", "uh", "hmm", "mmm"]:
+            return ""
         else:
             return random.choice([
                 "Wait a sec.",
