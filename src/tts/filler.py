@@ -30,7 +30,6 @@ class FillerProcessor(FrameProcessor):
 
                     # Send the filler immediately
                     await self.push_frame(TTSSpeakFrame(acknowledgment))
-                    print(f"🎯 Sent filler: '{acknowledgment}' for: '{frame.text}'")
 
         # Always pass the original frame through
         await self.push_frame(frame, direction)
@@ -42,7 +41,22 @@ class FillerProcessor(FrameProcessor):
         # Context-aware acknowledgments
         if any(
             word in text_lower
-            for word in ["temperature", "temp", "hot", "cold", "climate", " ac "]
+            for word in [
+                "temperature",
+                "temp",
+                "hot",
+                "cold",
+                "climate",
+                " ac ",
+                "warmer",
+                "cooler",
+                "heat",
+                "cool",
+                "air conditioning",
+                "a/c",
+                "aircon",
+                "air con",
+            ]
         ):
             return random.choice([
                 "Let me check the temperature.",
@@ -55,7 +69,10 @@ class FillerProcessor(FrameProcessor):
                 "Checking temperature now.",
                 "Give me a moment.",
             ])
-        elif any(word in text_lower for word in ["fan", "air", "blow", "blower"]):
+        elif any(
+            word in text_lower
+            for word in ["fan", "air", "blow", "blower", "windy", "breeze", "airflow"]
+        ):
             return random.choice([
                 "I'll adjust the fan for you.",
                 "Let me help with the airflow.",
@@ -92,15 +109,39 @@ class FillerProcessor(FrameProcessor):
                 "Hang tight, getting the map.",
                 "I'll guide you there.",
             ])
-        elif text_lower.strip() in ["hey", "uh", "hmm", "mmm"]:
+        elif (
+            (
+                text_lower.strip()
+                in [
+                    "hey",
+                    "uh",
+                    "hmm",
+                    "mmm",
+                    "um",
+                    "ah",
+                    "well",
+                    "thanks",
+                    "hello",
+                    "good",
+                    "bye",
+                    "goodbye",
+                    "great",
+                ]
+            )
+            or text_lower.isalpha()
+            or any(
+                word in text_lower
+                for word in ["great thanks", "okay great thank you", "okay great"]
+            )
+        ):
             return ""
         else:
-            return random.choice([
-                "Wait a sec.",
-                "Hold on.",
-                "Hang on a sec.",
-                "One moment.",
-                "Let me think.",
-                "Give me a second.",
-                "I'm checking on it.",
-            ])
+            # return random.choice([
+            #     "Wait a sec.",
+            #     "Hold on.",
+            #     "Hang on a sec.",
+            #     "One moment.",
+            #     "Give me a second.",
+            # ])
+
+            return ""

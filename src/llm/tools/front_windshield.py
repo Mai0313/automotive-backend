@@ -6,14 +6,14 @@ from src.llm.connects import pg_connect
 front_defrost_on_tool = ChatCompletionToolParam(
     type="function",
     function={
-        "name": "front_defrost_on",
-        "description": "Turn on the front defrost of the car",
+        "name": "front_winshield_defroster",
+        "description": "Turn on the front windshield defroster of the car",
         "parameters": {
             "type": "object",
             "properties": {
                 "status": {
                     "type": "boolean",
-                    "description": "`True` stands for turn on the defrost, and `False` stands for turn off the defrost.",
+                    "description": "`True` stands for turn on the windshield defroster, and `False` stands for turn off the windshield defroster.",
                 }
             },
             "required": ["status"],

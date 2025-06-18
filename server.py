@@ -55,8 +55,11 @@ from src.llm.tools.front_windshield import front_defrost_on_tool, get_front_defr
 from src.tts.filler import FillerProcessor
 
 setup_default_ace_logging(level="DEBUG")
+# from loguru import logger
+# logger.remove()
+
 RECORDING_CONFIG = VADParams(confidence=0.4, start_secs=0.1, stop_secs=0.1, min_volume=0.5)
-DEMO_CONFIG = VADParams()
+DEMO_CONFIG = VADParams(confidence=0.4, start_secs=0.05, stop_secs=0.8, min_volume=0.7)
 
 
 class EventMessage(BaseModel):
@@ -82,7 +85,8 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
         websocket=pipeline_metadata.websocket,
         params=ACETransportParams(
             vad_enabled=True,
-            vad_analyzer=SileroVADAnalyzer(params=RECORDING_CONFIG),
+            # vad_analyzer=SileroVADAnalyzer(params=RECORDING_CONFIG),
+            vad_analyzer=SileroVADAnalyzer(params=DEMO_CONFIG),
             vad_audio_passthrough=True,
         ),
     )
@@ -99,7 +103,7 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
             # model="parakeet-0.6b-en-US-asr-streaming-throughput-asr-bls-ensemble",
             model="conformer-en-US-asr-streaming-throughput-asr-bls-ensemble",
             language="en-US",
-            interim_results=False,
+            interim_results=True,
             sample_rate=16000,
             idle_timeout=15,
             # automatic_punctuation=True,
@@ -160,7 +164,6 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
         current_fan_speed=get_fan_speed(),
         current_front_defrost=get_front_defrost_status(),
     )
-    print("System Prompt =\n", SYSTEM_PROMPT)
 
     # Define available tools for LLM
     tools = [front_defrost_on_tool, set_temp_tool, set_fan_speed_tool, google_map_tool]

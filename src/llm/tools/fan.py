@@ -40,15 +40,8 @@ async def set_fan_speed_response(args) -> str:
     fan_speed = int(args["fan_speed"])  # Directly convert to integer
     fan_speed = max(min(fan_speed, fan_upper_limit), fan_lower_limit)
 
-    # if not isinstance(fan_speed, int):
-    #     raise TypeError("Fan speed must be an integer.")
-
-    # if 0 <= fan_speed <= 5:
     cur = pg_connect()
     cur.execute("UPDATE ac_settings SET fan_speed = %s", (fan_speed,))
     cur.connection.commit()
     cur.close()
     return f"The fan speed was set successfully. Current Fan speed: {fan_speed}"
-    # raise ValueError(
-    #     f"Fan speed must be an integer between {fan_lower_limit} and {fan_upper_limit}."
-    # )
