@@ -6,7 +6,7 @@ from src.llm.connects import pg_connect
 front_defrost_on_tool = ChatCompletionToolParam(
     type="function",
     function={
-        "name": "front_winshield_defroster",
+        "name": "front_windshield_defroster",
         "description": "Turn on the front windshield defroster of the car",
         "parameters": {
             "type": "object",

@@ -9,7 +9,7 @@ from .front_windshield import front_defrost_on_response
 async def handle_function(
     function_name, tool_call_id, args, llm, context, result_callback
 ) -> None:
-    if function_name == "front_winshield_defroster":
+    if function_name == "front_windshield_defroster":
         response = await front_defrost_on_response(args)
         await result_callback(response)
 
