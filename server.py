@@ -61,7 +61,7 @@ logger.add("logs/logfile.log", rotation="10 MB", retention="7 days", compression
 logger.remove()
 
 RECORDING_CONFIG = VADParams(confidence=0.4, start_secs=0.1, stop_secs=0.1, min_volume=0.5)
-DEMO_CONFIG = VADParams(confidence=0.4, start_secs=0.05, stop_secs=0.8, min_volume=0.7)
+DEMO_CONFIG = VADParams(confidence=0.7, start_secs=0.05, stop_secs=0.8, min_volume=1.0)
 
 
 class EventMessage(BaseModel):
