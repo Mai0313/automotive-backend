@@ -7,7 +7,7 @@ front_defrost_on_tool = ChatCompletionToolParam(
     type="function",
     function={
         "name": "front_windshield_defroster",
-        "description": "Turn on the front windshield defroster of the car",
+        "description": "Control the front windshield defroster of the car. Turn on when the windshield is foggy or ice up, turn off otherwise",
         "parameters": {
             "type": "object",
             "properties": {

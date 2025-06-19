@@ -54,10 +54,8 @@ from src.llm.tools.temperature import get_temp, set_temp_tool
 from src.llm.tools.front_windshield import front_defrost_on_tool, get_front_defrost_status
 from src.tts.filler import FillerProcessor
 
-setup_default_ace_logging(level="DEBUG")
+# setup_default_ace_logging(level="DEBUG")
 from loguru import logger
-
-logger.add("logs/logfile.log", rotation="10 MB", retention="7 days", compression="zip")
 logger.remove()
 
 RECORDING_CONFIG = VADParams(confidence=0.4, start_secs=0.1, stop_secs=0.1, min_volume=0.5)
