@@ -56,10 +56,11 @@ from src.tts.filler import FillerProcessor
 
 # setup_default_ace_logging(level="DEBUG")
 from loguru import logger
+
 logger.remove()
 
 RECORDING_CONFIG = VADParams(confidence=0.4, start_secs=0.1, stop_secs=0.1, min_volume=0.5)
-DEMO_CONFIG = VADParams(confidence=0.7, start_secs=0.05, stop_secs=0.8, min_volume=1.0)
+DEMO_CONFIG = VADParams(confidence=0.7, start_secs=0.05, stop_secs=1.5, min_volume=1.0)
 
 
 class EventMessage(BaseModel):
@@ -166,7 +167,7 @@ async def create_pipeline_task(pipeline_metadata: PipelineMetadata):
     )
 
     # Define available tools for LLM
-    tools = [front_defrost_on_tool, set_temp_tool, set_fan_speed_tool, google_map_tool]
+    tools = [front_defrost_on_tool, set_temp_tool, set_fan_speed_tool]
     print("🔧 Tools registered:", [tool["function"]["name"] for tool in tools])
 
     messages = [{"role": "system", "content": SYSTEM_PROMPT}]
