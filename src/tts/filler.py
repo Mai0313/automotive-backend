@@ -62,7 +62,6 @@ class FillerProcessor(FrameProcessor):
                 "Let me check the temperature.",
                 "I'll look into the temperature settings.",
                 "Just a second, checking temp.",
-                "Let me adjust that for you.",
                 "Hang tight, I'm on it.",
                 "One moment, please.",
                 "Let me take a quick look.",
@@ -76,7 +75,6 @@ class FillerProcessor(FrameProcessor):
             return random.choice([
                 "I'll adjust the fan for you.",
                 "Let me help with the airflow.",
-                "Adjusting the air now.",
                 "One sec, working on it.",
                 "Fan settings coming up.",
                 "Making the air better.",
@@ -90,7 +88,6 @@ class FillerProcessor(FrameProcessor):
             return random.choice([
                 "I'll check the defrost settings.",
                 "Let me help with the windshield.",
-                "I'll fix that for you.",
                 "Just a second.",
                 "Hang on, working on it.",
                 "Let me take care of that.",

@@ -7,7 +7,7 @@ set_temp_tool = ChatCompletionToolParam(
     type="function",
     function={
         "name": "set_temp",
-        "description": "Set the car's air conditioner to the target temperature",
+        "description": "Set the car's air conditioner to the target temperature within the limit of 16 ~ 28",
         "parameters": {
             "type": "object",
             "properties": {
