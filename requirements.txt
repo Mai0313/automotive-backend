@@ -2,7 +2,7 @@
 #    uv export --no-dev --no-hashes --frozen --output-file ./requirements.txt
 aiohappyeyeballs==2.6.1
     # via aiohttp
-aiohttp==3.11.18
+aiohttp==3.12.14
     # via
     #   langchain-nvidia-ai-endpoints
     #   pipecat-ai
@@ -285,7 +285,7 @@ redis==6.2.0
     # via nvidia-pipecat
 regex==2024.11.6
     # via transformers
-requests==2.32.3
+requests==2.32.4
     # via
     #   huggingface-hub
     #   langsmith
@@ -307,7 +307,7 @@ scipy==1.15.3
     #   sentence-transformers
 sentence-transformers==4.1.0
     # via nvidia-pipecat
-setuptools==70.0.0
+setuptools==78.1.1
     # via
     #   grpcio-tools
     #   nvidia-riva-client
@@ -324,7 +324,7 @@ sounddevice==0.5.2
     # via automotive-backend
 soxr==0.5.0.post1
     # via pipecat-ai
-starlette==0.46.2
+starlette==0.47.2
     # via fastapi
 sympy==1.14.0
     # via
@@ -336,7 +336,7 @@ threadpoolctl==3.6.0
     # via scikit-learn
 tokenizers==0.21.1
     # via transformers
-torch==2.7.1
+torch==2.8.0
     # via
     #   nvidia-pipecat
     #   sentence-transformers
@@ -346,7 +346,7 @@ tqdm==4.67.1
     #   openai
     #   sentence-transformers
     #   transformers
-transformers==4.52.4
+transformers==4.53.0
     # via sentence-transformers
 transitions==0.9.2
     # via nvidia-pipecat
@@ -368,7 +368,7 @@ typing-extensions==4.14.0
     #   pydantic-core
     #   sentence-transformers
     #   torch
-urllib3==2.4.0
+urllib3==2.5.0
     # via requests
 uvicorn==0.34.3
     # via
